@@ -1,7 +1,6 @@
 {
     "name": "robertaskam/laravel-google-drive-backup",
     "description": "A tool to add automatic backups to Google Drive",
-    "version": "1.0.0",
     "authors": [
         {
             "name": "Robert Askam",
