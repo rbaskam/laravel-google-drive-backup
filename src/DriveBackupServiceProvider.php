@@ -29,7 +29,7 @@ class DriveBackupServiceProvider extends ServiceProvider
         $this->app->bind('command.drivebackup.run', DriveBackupCommand::class);
 
         $this->commands([
-            'command.drivebackup.run'
+            'command.drivebackup.run' 
         ]);
     }
 }
