@@ -4,6 +4,7 @@ namespace RobertAskam\BackupGoogleDrive;
 
 use Illuminate\Support\ServiceProvider;
 use RobertAskam\BackupGoogleDrive\Commands\DriveBackupCommand;
+use RobertAskam\BackupGoogleDrive\Commands\DriveRestoreCommand;
 
 class DriveBackupServiceProvider extends ServiceProvider
 {
@@ -27,9 +28,11 @@ class DriveBackupServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind('command.drivebackup.run', DriveBackupCommand::class);
+        $this->app->bind('command.driverestore.run', DriveRestoreCommand::class);
 
         $this->commands([
-            'command.drivebackup.run' 
+            'command.drivebackup.run' ,
+            'command.driverestore.run' 
         ]);
     }
 }

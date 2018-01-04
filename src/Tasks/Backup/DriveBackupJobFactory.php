@@ -63,7 +63,7 @@ class DriveBackupJobFactory
             
             if ($failedEmailAddress) {
                 // if there is an error send an email to the specfied email address
-                Mail::raw('There has been an issue during the backup of the database..', function ($message) {
+                Mail::raw('There has been an issue during the backup of the database..', function ($message) use ($failedEmailAddress) {
                     $message->to($failedEmailAddress, env('APP_NAME', 'Laravel'))->subject("Backup Failed");
                 });
             }
@@ -94,19 +94,16 @@ class DriveBackupJobFactory
             'mimeType' => 'application/sql',
             'uploadType' => 'multipart'
             ));
-    }
 
-    public function retrieveDatabaseAndStore()
-    {
-        $storageLocation = storage_path() . '/secret.json';
-        putenv('GOOGLE_APPLICATION_CREDENTIALS='.$storageLocation);
-
-        $client = new Google_Client();
-        $client->addScope(Google_Service_Drive::DRIVE);
-        $client->useApplicationDefaultCredentials();
-        $service = new Google_Service_Drive($client);
-        
-        $files_list = $service->files->listFiles(array())->getFiles();
-        dd($files_list);
+        if ($createdFile) {
+            $successEmailAddress = $this->backup->getSuccessAlertEmail();
+            
+            if ($successEmailAddress) {
+                // if there is an error send an email to the specfied email address
+                Mail::raw('You have successfully backed up your database to Google Drive', function ($message) use ($successEmailAddress) {
+                    $message->to($successEmailAddress, env('APP_NAME', 'Laravel'))->subject("Backup Successful");
+                });
+            }
+        }
     }
 }
