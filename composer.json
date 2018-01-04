@@ -1,0 +1,28 @@
+{
+    "name": "robertaskam/backupgoogledrive",
+    "description": "A tool to add automatic backups to Google Drive",
+    "authors": [
+        {
+            "name": "Robert Askam",
+            "email": "rbaskam@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "google/apiclient": "^2.0"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "RobertAskam\\BackupGoogleDrive\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "RobertAskam\\BackupGoogleDrive\\DriveBackupServiceProvider"
+            ]
+        }
+    }
+}
