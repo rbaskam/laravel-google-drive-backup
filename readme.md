@@ -18,7 +18,7 @@ Go to config/drivebackup and set the necessary vars
 * Make sure JSON is selected
 * Click create and copy the downloaded file into you Storage Folder and call it secret.json
 
-### Run
+### Backup
 To run manually use
 ```php
 php artisan drivebackup:run
@@ -28,4 +28,8 @@ Or to Schedule just add the following to your Kernel
 ```php
 $schedule->command('drivebackup:run --force')->daily();
 ```
-
+### Restore
+To run manually use the following command, select the backup name you want, this will save it in Storage/app databse name
+```php
+php artisan driverestore:run
+```
