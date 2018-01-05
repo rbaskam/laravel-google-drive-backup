@@ -2,34 +2,65 @@
 namespace RobertAskam\BackupGoogleDrive\Tasks\Restore;
 
 use Illuminate\Support\Collection;
-use RobertAskam\BackupGoogleDrive\Helpers\RestoreHelper;
-use Carbon;
 use Storage;
-use DB;
-use Mail;
 use Google_Client; 
 use Google_Service_Drive;
 use Google_Service_Drive_DriveFile;
 
 class DriveRestoreJobFactory
 {
+    protected $client;
+    protected $service;
 
     public function __construct()
-    {
-        
-    }
-
-    public function retrieveDatabaseAndStore()
     {
         $storageLocation = storage_path() . '/secret.json';
         putenv('GOOGLE_APPLICATION_CREDENTIALS='.$storageLocation);
 
-        $client = new Google_Client();
-        $client->addScope(Google_Service_Drive::DRIVE);
-        $client->useApplicationDefaultCredentials();
-        $service = new Google_Service_Drive($client);
+        $this->client = new Google_Client();
+        $this->client->addScope(Google_Service_Drive::DRIVE);
+        $this->client->useApplicationDefaultCredentials();
+        $this->service = new Google_Service_Drive($this->client);
+    }
+
+    public function retrieveDatabaseFilesList()
+    {        
+        return $this->service->files->listFiles(array())->getFiles();
+    }
+
+    public function retrieveDatabaseFiles()
+    {
+        $filesList = $this->retrieveDatabaseFilesList();
         
-        $files_list = $service->files->listFiles(array())->getFiles();
-        dd($files_list);
+        $backups = array();
+        
+        foreach ($filesList as $item) {
+            array_push($backups, $item['name']);
+        }
+        
+        $collection = collect($backups);
+        $flattened = $collection->flatten();
+        $flattened->all();
+        
+        return $flattened;
+    }
+
+    public function retrieveDatabaseFileByName($name)
+    {
+        $filesList = $this->retrieveDatabaseFilesList();
+        $fileId = '';
+
+        foreach ($filesList as $item) {
+            if ($item['name'] == $name) {
+                $fileId = $item['id'];
+            }
+        }
+
+        if ($fileId != '') {
+            $response = $this->service->files->get($fileId, array(
+                'alt' => 'media'));
+            $content = $response->getBody()->getContents();
+            Storage::disk('local')->put($name, $content);
+        }   
     }
 }

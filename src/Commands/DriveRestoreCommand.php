@@ -14,6 +14,15 @@ class DriveRestoreCommand extends BaseCommand
     public function handle()
     {
         $driveBackupJob = new DriveRestoreJobFactory;
-        $driveBackupJob->retrieveDatabaseAndStore();
+        $files = $driveBackupJob->retrieveDatabaseFiles();
+        $files = $files->toArray();
+
+        $source = $this->choice(
+            'Which backup would you like to get?', 
+            $files
+        );
+        if ($source != '') {
+            $driveBackupJob->retrieveDatabaseFileByName($source);
+        }
     }
 }
