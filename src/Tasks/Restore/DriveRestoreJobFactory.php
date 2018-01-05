@@ -60,8 +60,13 @@ class DriveRestoreJobFactory
             $response = $this->service->files->get($fileId, array(
                 'alt' => 'media'));
             $content = $response->getBody()->getContents();
-            dd($content);
-            Storage::disk('local')->put($name, $content);
+            
+            $restoredFile = Storage::disk('local')->put($name, $content);
+            if ($restoredFile) {
+                echo 'File Restored Successfully';
+            } else {
+                echo 'File Restore Failed';
+            }
         }   
     }
 }
