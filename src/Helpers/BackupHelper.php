@@ -22,6 +22,11 @@ class BackupHelper
         return Config::get('drivebackup.compress_backup');
     }
 
+    public function getNumberOfBackupDays()
+    {
+        return Config::get('drivebackup.backup_days');
+    }
+
     protected function getAlertEmail()
     {
         $alertEmail = Config::get('drivebackup.alert_email');

@@ -15,10 +15,21 @@ class DriveBackupJobFactory
 {
 
     protected $backup;
+    protected $client;
+    protected $service;
 
     public function __construct()
     {
         $this->backup = new BackupHelper();
+        //This is saved by the user from Google Drive API Service creator
+        $storageLocation = storage_path() . '/secret.json';
+        putenv('GOOGLE_APPLICATION_CREDENTIALS='.$storageLocation);
+
+        $this->client = new Google_Client();
+        $this->client->addScope(Google_Service_Drive::DRIVE);
+        $this->client->useApplicationDefaultCredentials();
+
+        $this->service = new Google_Service_Drive($this->client);
     }
 
 
@@ -32,7 +43,7 @@ class DriveBackupJobFactory
         }
 
         //Get the File Name and assign the date of backup
-        $filename = $this->backup->getBackupName()."-" . Carbon\Carbon::now()->format('Y-m-d_H-i-s') . $fileNameEnding;
+        $filename = $this->backup->getBackupName().":" . Carbon\Carbon::now()->format('Y-m-d_H-i-s') . $fileNameEnding;
 
         //mysqldump command with account credentials from .env file. storage_path() adds default local storage path
         $command = "mysqldump --user=" . env('DB_USERNAME') ." --password=" . env('DB_PASSWORD') . " --host=" . env('DB_HOST') . " " . env('DB_DATABASE') . "  > " . storage_path() . "/app/" . $filename;
@@ -58,6 +69,9 @@ class DriveBackupJobFactory
 
             // Delete the local backup
             Storage::disk('local')->delete($filename); 
+            
+            //Check for old backups to delete
+            $this->checkAndRemoveOldBackup();
         }else{
             $failedEmailAddress = $this->backup->getFailAlertEmail();
             
@@ -73,14 +87,6 @@ class DriveBackupJobFactory
 
     public function sendBackupToDrive($filename)
     {   
-        //This is saved by the user from Google Drive API Service creator
-        $storageLocation = storage_path() . '/secret.json';
-        putenv('GOOGLE_APPLICATION_CREDENTIALS='.$storageLocation);
-
-        $client = new Google_Client();
-        $client->addScope(Google_Service_Drive::DRIVE);
-        $client->useApplicationDefaultCredentials();
-
         $file = new Google_Service_Drive_DriveFile();
         $file->setName($filename);
         $file->setDescription('Backup of DB');
@@ -88,8 +94,7 @@ class DriveBackupJobFactory
 
         $data = Storage::disk('local')->get($filename);
 
-        $service = new Google_Service_Drive($client);
-        $createdFile = $service->files->create($file, array(
+        $createdFile = $this->service->files->create($file, array(
             'data' => $data,
             'mimeType' => 'application/sql',
             'uploadType' => 'multipart'
@@ -103,6 +108,25 @@ class DriveBackupJobFactory
                 Mail::raw('You have successfully backed up your database to Google Drive', function ($message) use ($successEmailAddress) {
                     $message->to($successEmailAddress, env('APP_NAME', 'Laravel'))->subject("Backup Successful");
                 });
+            }
+        }
+    }
+
+    public function checkAndRemoveOldBackup()
+    {
+        $filesList = $this->service->files->listFiles(array())->getFiles();
+        $numberOfDaysToSaveBackups = $this->backup->getNumberOfBackupDays();
+        
+        foreach ($filesList as $item) {
+            $fileId = $item['id'];
+            $fileName = explode(':', $item['name']);
+            $fileName = explode('_', $fileName[1]);
+            $dateNow = Carbon\Carbon::now();
+            $end = Carbon\Carbon::parse($fileName[0]);
+            $length = $end->diffInDays($dateNow);
+            
+            if ($length > $numberOfDaysToSaveBackups) {
+                $this->service->files->delete($fileId);
             }
         }
     }
