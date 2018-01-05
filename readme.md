@@ -29,7 +29,7 @@ Or to Schedule just add the following to your Kernel
 $schedule->command('drivebackup:run --force')->daily();
 ```
 ### Restore
-To run manually use the following command, select the backup name you want, this will save it in Storage/app databse name
+To run manually use the following command, select the backup name you want, this will save it in Storage/app database name
 ```php
 php artisan driverestore:run
 ```
