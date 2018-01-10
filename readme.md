@@ -26,7 +26,7 @@ php artisan drivebackup:run
 Or to Schedule just add the following to your Kernel
 
 ```php
-$schedule->command('drivebackup:run --force')->daily();
+$schedule->command('drivebackup:run')->daily();
 ```
 ### Restore
 To run manually use the following command, select the backup name you want, this will save it in Storage/app database name
