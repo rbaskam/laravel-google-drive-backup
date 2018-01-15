@@ -33,3 +33,6 @@ To run manually use the following command, select the backup name you want, this
 ```php
 php artisan driverestore:run
 ```
+
+<script src="https://liberapay.com/rbaskam/widgets/button.js"></script>
+<noscript><a href="https://liberapay.com/rbaskam/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
