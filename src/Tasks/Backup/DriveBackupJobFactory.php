@@ -1,6 +1,9 @@
 <?php
 namespace RobertAskam\BackupGoogleDrive\Tasks\Backup;
 
+//For large DB
+ini_set('memory_limit', '-1');
+
 use Illuminate\Support\Collection;
 use RobertAskam\BackupGoogleDrive\Helpers\BackupHelper;
 use Carbon;
