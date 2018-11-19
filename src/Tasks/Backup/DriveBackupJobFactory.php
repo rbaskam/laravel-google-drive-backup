@@ -1,9 +1,6 @@
 <?php
 namespace RobertAskam\BackupGoogleDrive\Tasks\Backup;
 
-//For large DB
-ini_set('memory_limit', '-1');
-
 use Illuminate\Support\Collection;
 use RobertAskam\BackupGoogleDrive\Helpers\BackupHelper;
 use Carbon;
@@ -23,6 +20,8 @@ class DriveBackupJobFactory
 
     public function __construct()
     {
+        //For large DB
+        ini_set('memory_limit', '-1');
         $this->backup = new BackupHelper();
         //This is saved by the user from Google Drive API Service creator
         $storageLocation = storage_path() . '/secret.json';
