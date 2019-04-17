@@ -122,14 +122,17 @@ class DriveBackupJobFactory
         foreach ($filesList as $item) {
             $fileId = $item['id'];
             $fileName = explode(':', $item['name']);
-            $fileName = explode('_', $fileName[1]);
-            $dateNow = Carbon\Carbon::now();
-            $end = Carbon\Carbon::parse($fileName[0]);
-            $length = $end->diffInDays($dateNow);
-            
-            if ($length > $numberOfDaysToSaveBackups) {
-                $this->service->files->delete($fileId);
+            if (isset($fileName[1])) {
+                $fileName = explode('_', $fileName[1]);
+                $dateNow = Carbon\Carbon::now();
+                $end = Carbon\Carbon::parse($fileName[0]);
+                $length = $end->diffInDays($dateNow);
+                
+                if ($length > $numberOfDaysToSaveBackups) {
+                    $this->service->files->delete($fileId);
+                }
             }
+            
         }
     }
 }
